@@ -1,0 +1,99 @@
+#! /usr/bin/env node
+
+const fs = require('fs-extra');
+const path = require('path');
+const { execSync } = require('child_process');
+const chalk = require('chalk');
+const prompt = require('prompt-sync')();
+const fsExists = require('./utils/exists');
+const del = require('del');
+
+const argv = require('yargs')
+  .usage('Usage: $0 [--update] <dist directory> [<gh-pages directory>]')
+  .demand(1, 2, chalk.red('!ERR: You must provide a distribution directory followed by an optional directory to place the gh-pages (defaults to ./gh-pages)\n'))
+  .boolean('update')
+  .describe('update', 'updating already existing gh-pages (defaults to true if gh-pages directory already exists)')
+  .alias('update', 'u')
+  .help()
+  .argv;
+
+const DIST = path.resolve(argv._[0]);
+const GH_BASE = argv._[1] || 'gh-pages';
+const GH = path.resolve(GH_BASE);
+const execOpts = { cwd: GH };
+const REPO = execSync('git remote get-url origin');
+
+if (!fsExists(DIST)) {
+  console.log(`${chalk.red('!ERR:')} Yo bro your dist (${DIST}) doesn't exist yet (ಠ_ಠ)\n\tGo run your build command first and get back to me.`);
+  process.exit(0);
+}
+
+const UPDATE = argv.update || fsExists(GH);
+if (UPDATE) {
+  console.log('');
+  if (!argv.update) {
+    const CONTINUE = prompt(`\tBro, your gh-pages folder already exists, wanna update instead? (yes): `, 'yes');
+    if (!/y(es)?/i.test((CONTINUE || '').trim())) {
+      process.exit(0);
+    }
+  }
+  else {
+    console.log(`Updating gh-pages\n\tin: ${GH}\n\twith: ${DIST}`);
+    execSync(`git checkout gh-pages`, execOpts);
+    copyAndPush();
+  }
+
+  process.exit(0);
+}
+
+console.log(chalk.cyan(`Looks like we're going to be creating these gh-pages for the first time! 👌\n`));
+
+console.log(`\nCloning ${REPO} into ${GH}`);
+fs.mkdirSync(GH);
+fs.mkdirSync(`${GH}/.git`);
+fs.copySync(`${path.resolve('.git')}`, `${GH}/.git`);
+
+console.log(`Checking out gh-pages branch...`);
+execSync(`git checkout -b gh-pages`, execOpts);
+
+copyAndPush();
+
+try {
+  let gitIgnore = fs.readFileSync('.gitignore');
+  if (!(new RegExp(`\\s${GH_BASE}\\s`)).test(gitIgnore)) {
+    console.log(`I'm going to add ${GH_BASE} to your .gitignore so you don't accidentally commit that bad boy.`);
+    gitIgnore += writeGitIgnore();
+    fs.writeFileSync('.gitignore', gitIgnore, 'utf8');
+  }
+}
+catch (e) {
+  fs.writeFileSync('.gitignore', writeGitIgnore(), 'utf8');
+  console.log(chalk.yellow(`Yo, you didn't have a .gitignore? Weird.\n\nIt's cool though, you got one now with ${GH_BASE} in it now.\n`));
+}
+
+function writeGitIgnore () {
+  return `
+# keep ${GH_BASE} from being committed in main
+${GH_BASE}`;
+}
+
+function copyAndPush () {
+  console.log(`Copying files over from ${DIST}...`);
+  fs.copySync(`${DIST}`, `${GH}`);
+
+  console.log(`Committing gh-pages...`);
+  execSync(`git add .`, execOpts);
+
+  try {
+    execSync(`git commit -m "creating gh-pages"`, execOpts);
+  }
+  catch (e) {
+    console.log(chalk.red(`\nDon't be hasty dude, you've got no changes in your ${GH_BASE}!`));
+    console.log('Rebuild those gh-pages and then get back to me.');
+    process.exit(0);
+  }
+
+  execSync(`git push -u origin HEAD`, execOpts);
+
+  console.log(chalk.green(`Looks like you successfully pushed your gh-pages bro. 👍\n`));
+}
