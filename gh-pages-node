@@ -21,7 +21,7 @@ const DIST = path.resolve(argv._[0]);
 const GH_BASE = argv._[1] || 'gh-pages';
 const GH = path.resolve(GH_BASE);
 const execOpts = { cwd: GH };
-const REPO = execSync('git remote get-url origin');
+const REPO = execSync('git remote get-url origin').toString().trim();
 
 if (!fsExists(DIST)) {
   console.log(`${chalk.red('!ERR:')} Yo bro your dist (${DIST}) doesn't exist yet (ಠ_ಠ)\n\tGo run your build command first and get back to me.`);
@@ -32,16 +32,16 @@ const UPDATE = argv.update || fsExists(GH);
 if (UPDATE) {
   console.log('');
   if (!argv.update) {
-    const CONTINUE = prompt(`\tBro, your gh-pages folder already exists, wanna update instead? (yes): `, 'yes');
+    const CONTINUE = prompt(`Bro, your gh-pages folder already exists, wanna update instead? (yes): `, 'yes');
     if (!/y(es)?/i.test((CONTINUE || '').trim())) {
       process.exit(0);
     }
   }
   else {
     console.log(`Updating gh-pages\n\tin: ${GH}\n\twith: ${DIST}`);
-    execSync(`git checkout gh-pages`, execOpts);
-    copyAndPush();
   }
+  execSync(`git checkout gh-pages`, execOpts);
+  copyAndPush();
 
   process.exit(0);
 }
@@ -96,4 +96,9 @@ function copyAndPush () {
   execSync(`git push -u origin HEAD`, execOpts);
 
   console.log(chalk.green(`Looks like you successfully pushed your gh-pages bro. 👍\n`));
+
+  const pathname = REPO.split(':')[1].replace('.git', '').split('/');
+  const userName = pathname[0].toLowerCase();
+  const project = pathname[1];
+  console.log(`You should go check out your sweet work at:\n\n\thttps://${userName}.github.io/${project}/\n\n`);
 }
