@@ -9,12 +9,15 @@ const fsExists = require('./utils/exists');
 const del = require('del');
 
 const argv = require('yargs')
-  .usage('Usage: $0 [--update] <dist directory> [<gh-pages directory>]')
+  .usage('Usage: $0 [options] <dist directory> [gh-pages directory]')
   .demand(1, 2, chalk.red('!ERR: You must provide a distribution directory followed by an optional directory to place the gh-pages (defaults to ./gh-pages)\n'))
   .boolean('update')
-  .describe('update', 'updating already existing gh-pages (defaults to true if gh-pages directory already exists)')
   .alias('update', 'u')
+  .describe('update', 'updating already existing gh-pages (defaults to true if gh-pages directory already exists)')
+  .alias('message', 'm')
+  .describe('message', 'custom commit message gh-pages')
   .help()
+  .alias('help', 'h')
   .argv;
 
 const DIST = path.resolve(argv._[0]);
@@ -85,7 +88,7 @@ function copyAndPush () {
   execSync(`git add .`, execOpts);
 
   try {
-    execSync(`git commit -m "creating gh-pages"`, execOpts);
+    execSync(`git commit -m "${argv.m || 'updating gh-pages'}"`, execOpts);
   }
   catch (e) {
     console.log(chalk.red(`\nDon't be hasty dude, you've got no changes in your ${GH_BASE}!`));
@@ -100,5 +103,5 @@ function copyAndPush () {
   const pathname = REPO.split(':')[1].replace('.git', '').split('/');
   const userName = pathname[0].toLowerCase();
   const project = pathname[1];
-  console.log(`You should go check out your sweet work at:\n\n\thttps://${userName}.github.io/${project}/\n\n`);
+  console.log(`You should go check out your sweet work at:\n\n\thttps://${userName}.github.io/${project}/\n`);
 }
