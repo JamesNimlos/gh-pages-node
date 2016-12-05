@@ -1,7 +1,17 @@
 #gh-pages-node
 a node based script for adding or updating gh-pages from a specific distribution directory.
 
-#####Usage:
+```
+Usage: gh-pages-node [options] <dist directory> [gh-pages directory]
+
+Options:
+  --update, -u   updating already existing gh-pages (defaults to true if
+                 gh-pages directory already exists)                    [boolean]
+  --message, -m  custom commit message gh-pages
+  --help, -h     Show help                                             [boolean]
+```
+
+#####How-to:
 ```sh
 # clone the repo
 git clone git@github.com:JamesNimlos/gh-pages-node.git
