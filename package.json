@@ -16,6 +16,7 @@
     "copy": "^0.3.0",
     "cp": "^0.2.0",
     "del": "^2.2.2",
+    "fs-extra": "^5.0.0",
     "prompt": "^1.0.0",
     "prompt-promise": "^1.0.3",
     "prompt-sync": "^4.1.4",
