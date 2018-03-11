@@ -27,7 +27,7 @@ const execOpts = { cwd: GH };
 const REPO = execSync('git remote get-url origin').toString().trim();
 
 if (!fsExists(DIST)) {
-  console.log(`${chalk.red('!ERR:')} Yo bro your dist (${DIST}) doesn't exist yet (ಠ_ಠ)\n\tGo run your build command first and get back to me.`);
+  console.log(`${chalk.red('!ERR:')} Yo friend your dist (${DIST}) doesn't exist yet (ಠ_ಠ)\n\tGo run your build command first and get back to me.`);
   process.exit(0);
 }
 
@@ -71,7 +71,7 @@ try {
 }
 catch (e) {
   fs.writeFileSync('.gitignore', writeGitIgnore(), 'utf8');
-  console.log(chalk.yellow(`Yo, you didn't have a .gitignore? Weird.\n\nIt's cool though, you got one now with ${GH_BASE} in it now.\n`));
+  console.log(chalk.yellow(`Huh, you didn't have a .gitignore? Weird.\n\nIt's cool though, you got one now with ${GH_BASE} in it now.\n`));
 }
 
 function writeGitIgnore () {
@@ -98,7 +98,7 @@ function copyAndPush () {
 
   execSync(`git push -u origin HEAD`, execOpts);
 
-  console.log(chalk.green(`Looks like you successfully pushed your gh-pages bro. 👍\n`));
+  console.log(chalk.green(`Looks like you successfully pushed your gh-pages friend. 👍\n`));
 
   const pathname = REPO.split(':')[1].replace('.git', '').split('/');
   const userName = pathname[0].toLowerCase();
