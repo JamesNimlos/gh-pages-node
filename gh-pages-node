@@ -6,7 +6,6 @@ const { execSync } = require('child_process');
 const chalk = require('chalk');
 const prompt = require('prompt-sync')();
 const fsExists = require('./utils/exists');
-const del = require('del');
 
 const argv = require('yargs')
   .usage('Usage: $0 [options] <dist directory> [gh-pages directory]')
@@ -101,7 +100,13 @@ function copyAndPush () {
   console.log(chalk.green(`Looks like you successfully pushed your gh-pages friend. 👍\n`));
 
   const pathname = REPO.split(':')[1].replace('.git', '').split('/');
-  const userName = pathname[0].toLowerCase();
-  const project = pathname[1];
-  console.log(`You should go check out your sweet work at:\n\n\thttps://${userName}.github.io/${project}/\n`);
+  let pagesUrl;
+  if (pathname.length >= 2) {
+    const project = pathname.pop();
+    const userName = pathname.pop().toLowerCase();
+    pagesUrl = `https://${userName}.github.io/${project}/`;
+  } else {
+    pagesUrl = 'https://<username>.github.io/<project-name>/'
+  }
+  console.log(`You should go check out your sweet work at:\n\n\t${pagesUrl}\n`);
 }

@@ -14,14 +14,13 @@
   "author": "James Nimlos",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^1.1.3",
+    "chalk": "^2.3.2",
     "copy": "^0.3.0",
     "cp": "^0.2.0",
-    "del": "^2.2.2",
     "fs-extra": "^5.0.0",
     "prompt": "^1.0.0",
     "prompt-promise": "^1.0.3",
     "prompt-sync": "^4.1.4",
-    "yargs": "^6.5.0"
+    "yargs": "^11.0.0"
   }
 }
